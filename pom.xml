@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar-plugins</groupId>
+    <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>19</version>
+    <version>36</version>
   </parent>
 
   <artifactId>sonar-openid-plugin</artifactId>
@@ -55,6 +55,8 @@
 
   <properties>
     <sonar.version>3.1</sonar.version>
+    <sonar.pluginClass>org.sonar.plugins.openid.OpenIdPlugin</sonar.pluginClass>
+    <sonar.pluginName>OpenID</sonar.pluginName>
   </properties>
 
   <dependencies>
@@ -139,18 +141,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <configuration>
-          <pluginName>OpenID</pluginName>
-          <pluginClass>org.sonar.plugins.openid.OpenIdPlugin</pluginClass>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>
