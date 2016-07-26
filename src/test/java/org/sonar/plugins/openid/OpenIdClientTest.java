@@ -133,6 +133,20 @@ public class OpenIdClientTest {
     assertThat(user.getName()).isEqualTo("me");
     assertThat(user.getEmail()).isEqualTo("me@here.com");
   }
+  
+  @Test
+  public void toUserDetails_missing_name_but_has_email() throws Exception {
+    AuthSuccess authSuccess = mock(AuthSuccess.class);
+    when(authSuccess.hasExtension(SRegMessage.OPENID_NS_SREG)).thenReturn(true);
+    SRegResponse sreg = SRegResponse.createFetchResponse();
+    sreg.addAttribute("email", "me@here.com");
+    when(authSuccess.getExtension(SRegMessage.OPENID_NS_SREG)).thenReturn(sreg);
+
+    UserDetails user = OpenIdClient.toUser(authSuccess);
+
+    assertThat(user.getName()).isEqualTo("me");
+    assertThat(user.getEmail()).isEqualTo("me@here.com");
+  }
 
   @Test
   public void toUserDetails_missing_fields() throws Exception {
@@ -160,6 +174,17 @@ public class OpenIdClientTest {
 
     assertThat(user.getName()).isEqualTo("Rick Hunter");
     assertThat(user.getEmail()).isEqualTo("rick@hunter.com");
+  }
+  
+  @Test
+  public void toUserDetails_name_from_identity() throws Exception {
+    AuthSuccess authSuccess = mock(AuthSuccess.class);
+    when(authSuccess.getIdentity()).thenReturn("http://server/openid/id/user.name");
+
+    UserDetails user = OpenIdClient.toUser(authSuccess);
+
+    assertThat(user.getName()).isEqualTo("user.name");
+    assertThat(user.getEmail()).isNull();
   }
 
   @Test
