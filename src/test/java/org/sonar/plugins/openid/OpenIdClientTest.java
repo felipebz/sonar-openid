@@ -53,7 +53,7 @@ public class OpenIdClientTest {
     OpenIdClient client = new OpenIdClient(settings);
     client.initReturnToUrl();
 
-    assertThat(client.getReturnToUrl()).isEqualTo("http://localhost:9000/openid/validate");
+    assertThat(client.getReturnToUrl()).isEqualTo("http://localhost:9000/oauth2/callback/openid");
   }
 
   @Test
@@ -79,14 +79,8 @@ public class OpenIdClientTest {
    * Meanwhile the test connects to Google, and if it's down (yes it's possible !), the test fallbacks on Yahoo.
    */
   @Test
-  public void initDiscoveryInfo_test_google() {
-    try {
-      testRemoteOpenIdProvider("https://www.google.com/o8/id");
-    } catch (Exception e) {
-      System.out.println("Failed to connect to Google OpenId Provider");
-      e.printStackTrace();
-      testRemoteOpenIdProvider("http://open.login.yahoo.com");
-    }
+  public void initDiscoveryInfo_test_yahoo() {
+    testRemoteOpenIdProvider("http://open.login.yahoo.com");
   }
 
   private void testRemoteOpenIdProvider(String endpoint) {

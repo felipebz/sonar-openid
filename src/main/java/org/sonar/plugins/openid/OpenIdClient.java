@@ -39,10 +39,11 @@ import org.openid4java.message.ax.FetchResponse;
 import org.openid4java.message.sreg.SRegMessage;
 import org.openid4java.message.sreg.SRegRequest;
 import org.openid4java.message.sreg.SRegResponse;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.UserDetails;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.openid.api.OpenIdExtension;
 import org.sonar.plugins.openid.api.OpenIdUtils;
 
@@ -50,7 +51,8 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-public class OpenIdClient implements ServerExtension {
+@ServerSide
+public class OpenIdClient {
 
   public static final String PROPERTY_SONAR_URL = "sonar.openid.sonarServerUrl";
   public static final String PROPERTY_OPENID_URL = "sonar.openid.providerUrl";
@@ -60,6 +62,7 @@ public class OpenIdClient implements ServerExtension {
   static final String SREG_ATTR_FULLNAME = "fullname";
   static final String AX_ATTR_FIRSTNAME = "firstName";
   static final String AX_ATTR_LASTNAME = "lastName";
+  static final Logger LOG = Loggers.get(OpenIdClient.class);
 
   private Settings settings;
   private ConsumerManager manager;
@@ -104,7 +107,7 @@ public class OpenIdClient implements ServerExtension {
     Preconditions.checkArgument(StringUtils.isNotBlank(sonarUrl), "Property sonar.openid.sonarServerUrl is missing");
     Preconditions.checkArgument(!sonarUrl.contains("?"), "Property sonar.openid.sonarServerUrl must not contain the character ?");
     Preconditions.checkArgument(!StringUtils.endsWith(sonarUrl, "/"), "Property sonar.openid.sonarServerUrl must not end with with slash /");
-    returnToUrl = sonarUrl + "/openid/validate";
+    returnToUrl = sonarUrl + "/oauth2/callback/openid";
   }
 
   @VisibleForTesting
@@ -112,7 +115,7 @@ public class OpenIdClient implements ServerExtension {
     String endpoint = settings.getString(PROPERTY_OPENID_URL);
     Preconditions.checkState(!Strings.isNullOrEmpty(endpoint), "Property " + PROPERTY_OPENID_URL + " is missing");
     try {
-      List l = new Discovery().discover(endpoint);
+      List<?> l = new Discovery().discover(endpoint);
       if (l == null || l.isEmpty()) {
         discoveryInfo = new DiscoveryInformation(new URL(endpoint));
       } else {
@@ -145,7 +148,7 @@ public class OpenIdClient implements ServerExtension {
       authReq.addExtension(sregReq);
 
       for (OpenIdExtension extension : extensions) {
-        LoggerFactory.getLogger(OpenIdClient.class).debug("Call {}#doOnRequest()", extension.getClass().getName());
+        LOG.debug("Call {}#doOnRequest()", extension.getClass().getName());
         extension.doOnRequest(authReq);
       }
 
@@ -168,7 +171,7 @@ public class OpenIdClient implements ServerExtension {
     // the verified identifier is null if the verification failed
     Identifier verified = verification.getVerifiedId();
     if (verified == null) {
-      LoggerFactory.getLogger(OpenIdClient.class).warn("Fail to verify OpenId request: " + verification.getStatusMsg());
+      LOG.warn("Fail to verify OpenId request: " + verification.getStatusMsg());
     } else {
       AuthSuccess authSuccess = (AuthSuccess) verification.getAuthResponse();
       if (authSuccess == null) {

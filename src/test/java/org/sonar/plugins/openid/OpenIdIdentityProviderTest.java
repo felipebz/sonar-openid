@@ -20,19 +20,23 @@
 package org.sonar.plugins.openid;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.utils.Version;
+import org.sonar.api.config.Settings;
 
-public class OpenIdPluginTest {
+public class OpenIdIdentityProviderTest {
+  
+  Settings settings = new Settings();
+  OpenIdClient openIdClient = mock(OpenIdClient.class);
+  OpenIdIdentityProvider underTest = new OpenIdIdentityProvider(settings, openIdClient);
 
   @Test
-  public void getExtensions() {
-    Plugin.Context context = new Plugin.Context(SonarRuntimeImpl.forSonarQube(Version.parse("6.0"), SonarQubeSide.SERVER));
-    new OpenIdPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(2);
+  public void check_fields() throws Exception {
+    assertThat(underTest.getKey()).isEqualTo("openid");
+    assertThat(underTest.getName()).isEqualTo("OpenID");
+    assertThat(underTest.getDisplay().getIconPath()).isEqualTo("/static/openid/openid.png");
+    assertThat(underTest.getDisplay().getBackgroundColor()).isEqualTo("#555555");
   }
+  
 }

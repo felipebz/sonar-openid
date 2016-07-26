@@ -19,46 +19,15 @@
  */
 package org.sonar.plugins.openid;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.ExtensionProvider;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.Settings;
+import org.sonar.api.Plugin;
 
-import java.util.List;
+public final class OpenIdPlugin implements Plugin {
 
-public final class OpenIdPlugin extends SonarPlugin {
-
-  public List getExtensions() {
-    return ImmutableList.of(Extensions.class);
+  @Override
+  public void define(Context context) {
+    context.addExtensions(
+        OpenIdClient.class,
+        OpenIdIdentityProvider.class);
   }
 
-  public static final class Extensions extends ExtensionProvider implements ServerExtension {
-    private Settings settings;
-
-    public Extensions(Settings settings) {
-      this.settings = settings;
-    }
-
-    @Override
-    public Object provide() {
-      List<Class> extensions = Lists.newArrayList();
-      if (isRealmEnabled()) {
-        Preconditions.checkState(settings.getBoolean("sonar.authenticator.createUsers"), "Property sonar.authenticator.createUsers must be set to true.");
-        extensions.add(OpenIdSecurityRealm.class);
-        extensions.add(OpenIdClient.class);
-        extensions.add(OpenIdAuthenticator.class);
-        extensions.add(OpenIdValidationFilter.class);
-        extensions.add(OpenIdAuthenticationFilter.class);
-        extensions.add(OpenIdLogoutFilter.class);
-      }
-      return extensions;
-    }
-
-    private boolean isRealmEnabled() {
-      return OpenIdSecurityRealm.KEY.equalsIgnoreCase(settings.getString("sonar.security.realm"));
-    }
-  }
 }
