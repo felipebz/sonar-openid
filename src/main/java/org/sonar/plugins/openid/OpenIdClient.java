@@ -209,6 +209,18 @@ public class OpenIdClient implements ServerExtension {
           email = fr.getAttributeValue(AX_ATTR_EMAIL);
         }
       }
+      
+      if (name == null && email != null) {
+        name = email.split("@")[0];
+      }
+      
+      if (name == null) {
+        String identity = authSuccess.getIdentity();
+        if (!Strings.isNullOrEmpty(identity)) {
+          name = identity.substring(identity.lastIndexOf('/') + 1);
+        }
+      }
+      
       UserDetails user = null;
       if (!Strings.isNullOrEmpty(name)) {
         user = new UserDetails();
