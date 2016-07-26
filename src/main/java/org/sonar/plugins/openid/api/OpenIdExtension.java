@@ -21,7 +21,7 @@ package org.sonar.plugins.openid.api;
 
 import org.openid4java.message.AuthRequest;
 import org.openid4java.message.AuthSuccess;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.server.ServerSide;
 
 /**
  * <p>Adds verifications to authentication request.</p>
@@ -32,7 +32,8 @@ import org.sonar.api.ServerExtension;
  *
  * @since 1.1
  */
-public abstract class OpenIdExtension implements ServerExtension {
+@ServerSide
+public abstract class OpenIdExtension {
 
   /**
    * Override this method to complete the request attributes (AX/SREG)

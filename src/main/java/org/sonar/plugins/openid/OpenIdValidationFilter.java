@@ -22,8 +22,9 @@ package org.sonar.plugins.openid;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.openid4java.message.ParameterList;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.security.UserDetails;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.ServletFilter;
 
 import javax.servlet.*;
@@ -37,6 +38,7 @@ import java.io.IOException;
  */
 public final class OpenIdValidationFilter extends ServletFilter {
 
+  static final Logger LOG = Loggers.get(OpenIdValidationFilter.class);
   static final String USER_ATTRIBUTE = "openid_user";
   private OpenIdClient openIdClient;
 
@@ -62,7 +64,7 @@ public final class OpenIdValidationFilter extends ServletFilter {
     try {
       user = openIdClient.verify(receivingURL, responseParameters);
     } catch (RuntimeException e) {
-      LoggerFactory.getLogger(OpenIdValidationFilter.class).error("Fail to verify OpenId request", e);
+      LOG.error("Fail to verify OpenId request", e);
       throw e;
     }
     if (user == null) {

@@ -20,9 +20,9 @@
 package org.sonar.plugins.openid;
 
 import com.google.common.base.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.ServletFilter;
 
 import javax.servlet.*;
@@ -34,7 +34,7 @@ import java.io.IOException;
 public final class OpenIdLogoutFilter extends ServletFilter {
 
   static final String PROPERTY_PROVIDER_LOGOUT_URL = "sonar.openid.providerLogoutUrl";
-  static final Logger LOG = LoggerFactory.getLogger(OpenIdLogoutFilter.class);
+  static final Logger LOG = Loggers.get(OpenIdLogoutFilter.class);
 
   private final Settings settings;
 

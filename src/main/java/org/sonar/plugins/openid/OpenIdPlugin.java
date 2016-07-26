@@ -19,23 +19,25 @@
  */
 package org.sonar.plugins.openid;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.ExtensionProvider;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.Settings;
-
 import java.util.List;
 
-public final class OpenIdPlugin extends SonarPlugin {
+import org.sonar.api.ExtensionProvider;
+import org.sonar.api.Plugin;
+import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
 
-  public List getExtensions() {
-    return ImmutableList.of(Extensions.class);
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+public final class OpenIdPlugin implements Plugin {
+
+  @Override
+  public void define(Context context) {
+      context.addExtension(Extensions.class);
   }
 
-  public static final class Extensions extends ExtensionProvider implements ServerExtension {
+  @ServerSide
+  public static final class Extensions extends ExtensionProvider {
     private Settings settings;
 
     public Extensions(Settings settings) {
@@ -44,7 +46,7 @@ public final class OpenIdPlugin extends SonarPlugin {
 
     @Override
     public Object provide() {
-      List<Class> extensions = Lists.newArrayList();
+      List<Class<?>> extensions = Lists.newArrayList();
       if (isRealmEnabled()) {
         Preconditions.checkState(settings.getBoolean("sonar.authenticator.createUsers"), "Property sonar.authenticator.createUsers must be set to true.");
         extensions.add(OpenIdSecurityRealm.class);

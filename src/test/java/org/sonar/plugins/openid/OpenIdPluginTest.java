@@ -22,13 +22,15 @@ package org.sonar.plugins.openid;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.Settings;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@SuppressWarnings("unchecked")
 public class OpenIdPluginTest {
 
   @Rule
@@ -39,7 +41,7 @@ public class OpenIdPluginTest {
     Settings settings = new Settings()
         .setProperty("sonar.security.realm", "openid")
         .setProperty("sonar.authenticator.createUsers", "true");
-    List<ServerExtension> extensions = (List<ServerExtension>) new OpenIdPlugin.Extensions(settings).provide();
+    List<Class<?>> extensions = (List<Class<?>>) new OpenIdPlugin.Extensions(settings).provide();
 
     assertThat(extensions).hasSize(6);
     assertThat(extensions).doesNotHaveDuplicates();
@@ -61,7 +63,7 @@ public class OpenIdPluginTest {
   @Test
   public void disable_extensions_if_default_realm() {
     Settings settings = new Settings();
-    List<ServerExtension> extensions = (List<ServerExtension>) new OpenIdPlugin.Extensions(settings).provide();
+    List<Class<?>> extensions = (List<Class<?>>) new OpenIdPlugin.Extensions(settings).provide();
 
     assertThat(extensions).isEmpty();
   }
@@ -69,14 +71,16 @@ public class OpenIdPluginTest {
   @Test
   public void disable_extensions_if_openid_realm_is_disabled() {
     Settings settings = new Settings().setProperty("sonar.security.realm", "LDAP");
-    List<ServerExtension> extensions = (List<ServerExtension>) new OpenIdPlugin.Extensions(settings).provide();
+    List<Class<?>> extensions = (List<Class<?>>) new OpenIdPlugin.Extensions(settings).provide();
 
     assertThat(extensions).isEmpty();
   }
 
   @Test
   public void getExtensions() {
-    assertThat(new OpenIdPlugin().getExtensions()).containsExactly(OpenIdPlugin.Extensions.class);
+    Plugin.Context context = new Plugin.Context(SonarQubeVersion.V5_6);
+    new OpenIdPlugin().define(context);
+    assertThat(context.getExtensions()).containsExactly(OpenIdPlugin.Extensions.class);
   }
 
   @Test
@@ -85,7 +89,7 @@ public class OpenIdPluginTest {
     Settings settings = new Settings()
         .setProperty("sonar.security.realm", "openid")
         .setProperty("sonar.authenticator.createUsers", "true");
-    List<ServerExtension> extensions = (List<ServerExtension>) new OpenIdPlugin.Extensions(settings).provide();
+    List<Class<?>> extensions = (List<Class<?>>) new OpenIdPlugin.Extensions(settings).provide();
 
     assertThat(extensions.indexOf(OpenIdValidationFilter.class)).isLessThan(extensions.indexOf(OpenIdAuthenticationFilter.class));
   }
